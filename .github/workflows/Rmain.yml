@@ -1,0 +1,39 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        # Installa Cython e altre dipendenze
+        sudo apt install -y python3-pip openjdk-8-jdk cython3 build-essential git zlib1g-dev
+        # Installa Buildozer e Cython via pip
+        pip install buildozer cython
+
+    - name: Initialize Buildozer
+      run: buildozer android debug
+      env:
+        ANDROID_NDK_HOME: /opt/android/android-ndk
+        ANDROID_SDK_ROOT: /opt/android/sdk
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: ContaMetriApp
+        path: bin/*
